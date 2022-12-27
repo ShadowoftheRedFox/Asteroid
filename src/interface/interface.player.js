@@ -242,11 +242,11 @@ class GamePlayer extends GameInterfaces {
                     shoot.y + 5 > asteroid.y - asteroid.size) {
                     asteroid.life -= shoot.level;
                     this.shoots.splice(id, 1);
-                    this.score += 5;
+                    this.score += Math.floor(5 * this.speed);
 
                     if (asteroid.life <= 0) {
                         this.asteroids.splice(idx, 1);
-                        this.score += 10;
+                        this.score += Math.floor(10 * this.speed);
                         //todo animation 
                     }
                 }
@@ -283,13 +283,13 @@ class GamePlayer extends GameInterfaces {
         if (this.score > this.bestScore) this.bestScore = this.score;
 
         // leveling up system
-        if (this.score % 200 === 0 && this.score > this.lastLeveledUp) {
+        if (this.score >= this.lastLeveledUp + 200) {
             this.lastLeveledUp = this.score;
             this.level++;
         }
 
         // life system
-        if ((this.score >= 1000 || this.score % 5000 == 0) && this.score > this.lastLifeUP) {
+        if (this.score % 5000 == 0 && this.score > this.lastLifeUP) {
             this.lastLifeUP = this.score;
             this.life++;
         }
