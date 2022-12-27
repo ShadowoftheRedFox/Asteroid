@@ -157,7 +157,6 @@ KeyboardTrackerManager.init = function () {
  * @param {KeyboardEvent} ev 
  */
 KeyboardTrackerManager.onkeydown = function (ev) {
-    console.log("launched");
     // remember this in map
     ev = ev || event; // to deal with IE
     KeyboardTrackerManager.map[ev.key] = true;
@@ -179,17 +178,12 @@ KeyboardTrackerManager.onkeyup = function (ev) {
         KeyboardTrackerManager.array.splice(KeyboardTrackerManager.array.indexOf(ev.key), 1);
     }
 };
-let count = 0;
-KeyboardTrackerManager.pressed = function (...any) {
-    any.forEach(a => {
-        if (KeyboardTrackerManager.map[a] && KeyboardTrackerManager.map[a] === true) return true;
-        else if (KeyboardTrackerManager.array.includes(a)) return true;
 
-        if (count == 1000) {
-            console.log(KeyboardTrackerManager.map);
-            console.log(KeyboardTrackerManager.array);
-            count = 0;
-        } else count++;
+KeyboardTrackerManager.pressed = function (array) {
+    let result = false;
+    array.forEach(a => {
+        if (!!KeyboardTrackerManager.map[a]) result = true;
+        else if (KeyboardTrackerManager.array.includes(a)) result = true;
     });
-    return false;
+    return result;
 };

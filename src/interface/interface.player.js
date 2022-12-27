@@ -199,12 +199,14 @@ class GamePlayer extends GameInterfaces {
         }
 
         if (KeyboardTrackerManager.pressed(k.right)) {
-            that.x += Math.floor(scope.w / 100);
+            that.x += Math.floor(scope.w / 200);
             if (that.x >= scope.w - 10) that.x = scope.w - 10;
         } else if (KeyboardTrackerManager.pressed(k.left)) {
-            that.x -= Math.floor(scope.w / 100);
+            that.x -= Math.floor(scope.w / 200);
             if (that.x <= 10) that.x = 10;
-        } else if (KeyboardTrackerManager.pressed(k.shoot) && Date.now() - that.lastShoot >= 200) {
+        }
+
+        if (KeyboardTrackerManager.pressed(k.shoot) && Date.now() - that.lastShoot >= 200) {
             that.lastShoot = Date.now();
             that.shoots.push({
                 x: that.x,
@@ -215,13 +217,13 @@ class GamePlayer extends GameInterfaces {
         }
 
         if (KeyboardTrackerManager.pressed(k.down)) {
-            that.speed -= 1 / elaps;
+            that.speed -= 0.2 / elaps;
             if (that.speed <= 1) that.speed = 1;
         } else if (KeyboardTrackerManager.pressed(k.up)) {
-            that.speed += 1 / elaps;
+            that.speed += 0.5 / elaps;
             if (that.speed >= 5) that.speed = 5;
         } else {
-            that.speed -= 0.5 / elaps;
+            that.speed -= 0.1 / elaps;
             if (that.speed <= 1) that.speed = 1;
         }
 

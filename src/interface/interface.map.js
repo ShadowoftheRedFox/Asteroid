@@ -90,7 +90,7 @@ class GameMapInterface extends GameInterfaces {
     update(scope) {
         // since the player is moving, make the stars go down by 10% of his speed
         this.starsArray.forEach(star => {
-            star.y += Math.ceil(scope.state.entity.player.speed * 0.5);
+            star.y += Math.ceil(scope.state.entity.player.speed * 0.2);
             // if the star get out of the screen, create a "new" star at the top of the screen
             if (star.y >= 2880 + star.size / 2) {
                 star.x = Math.floor(Math.random() * 5120);
