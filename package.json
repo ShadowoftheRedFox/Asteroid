@@ -1,0 +1,26 @@
+{
+    "name": "asteroids",
+    "description": "",
+    "version": "1.0.0",
+    "lastUpdate": "26/12/2022",
+    "main": "./index.html",
+    "keywords": [
+        "game",
+        "2d"
+    ],
+    "author": "Shadow of the Red Fox#5881",
+    "license": "ISC",
+    "releaseType": "Dev/Alpha",
+    "changelog": [],
+    "window": {
+        "title": "Asteroids",
+        "icon": "favicon.ico",
+        "toolbar": false,
+        "width": 800,
+        "height": 400,
+        "min_width": 800,
+        "min_height": 400,
+        "position": "center",
+        "resizable": true
+    }
+}
