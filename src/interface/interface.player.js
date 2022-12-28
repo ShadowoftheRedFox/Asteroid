@@ -247,7 +247,10 @@ class GamePlayer extends GameInterfaces {
      * @param {GameScope} scope 
      */
     update(scope) {
-        //TODO if scope.constants.isMobileDevice, put button for phone
+        if (scope.constants.isMobileDevice && Height > Width) {
+            return;
+        }
+
         const k = GameConfig.keyboard,
             elaps = Date.now() - this.elapsed;
         this.elapsed = Date.now();

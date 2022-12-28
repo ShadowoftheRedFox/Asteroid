@@ -4,10 +4,6 @@
 }
 
 html {
-    min-width: 400px;
-    min-height: 400px;
-    max-width: 5120px;
-    max-height: 2880px;
     position: fixed;
     right: 0;
     left: 0;
@@ -17,10 +13,6 @@ html {
 
 body {
     background: rgb(177, 177, 177);
-    min-width: 800px;
-    min-height: 400px;
-    max-width: 5120px;
-    max-height: 2880px;
     padding: 0;
     margin: 0;
     position: fixed;
@@ -31,10 +23,6 @@ body {
 }
 
 #container {
-    min-width: 800px;
-    min-height: 400px;
-    max-width: 5120px;
-    max-height: 2880px;
     padding: 0;
     margin: 0;
     position: relative;
