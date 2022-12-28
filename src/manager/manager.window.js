@@ -75,11 +75,11 @@ WindowManager.fatal = function (e) {
     const report = e.stack.split("\n");
     for (let i = 0; i < report.length; i++) {
         const reportWidth = ctx.measureText(report[i]).width;
-        if (reportWidth >= w) report.push(GameTranslate("WindowManagerLongLog"));
+        if (reportWidth >= w) report.push("Log too long, check console");
         ctx.fillText(report[i], 40, 100 + 16 * i, w);
     }
     ctx.fillStyle = "#ff0000";
     ctx.font = "bold 32px serif";
     ctx.textBaseline = 'top';
-    ctx.fillText(GameTranslate("WindowManagerFatalError"), 40, 40);
+    ctx.fillText("Fatal Error", 40, 40);
 };

@@ -93,6 +93,10 @@ Number.prototype.clamp = function (min, max) {
     return Math.min(Math.max(this, min), max);
 };
 
+Math.randomSign = function () {
+    return (Math.random() < 0.5) ? -1 : 1;
+};
+
 /**
  * The static class that defines utility methods.
  *
