@@ -224,7 +224,12 @@ class GamePlayer extends GameInterfaces {
         const ctx = scope.cache.context[this.canvasGroup];
         const oldFillStyle = ctx.fillStyle;
 
-        ctx.fillStyle = asteroid.color;
+        // make like the space ship has a blue aura
+        var gradient = ctx.createRadialGradient(this.x, this.y, asteroid.size, asteroid.x, asteroid.y, 500);
+        gradient.addColorStop(0, "red");
+        gradient.addColorStop(0.2, asteroid.color);
+        ctx.fillStyle = gradient;
+
         ctx.beginPath();
         ctx.moveTo(asteroid.x + asteroid.points[0].x, asteroid.y + asteroid.points[0].y);
         asteroid.points.forEach(point => {
