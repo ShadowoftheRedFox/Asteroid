@@ -80,7 +80,7 @@ class GamePlayer extends GameInterfaces {
         // draw a little tick for each bullet
         this.shoots.forEach(shoot => {
             ctx.fillStyle = "white";
-            if (shoot.level === 1) {
+            if (shoot.level === 2) {
                 ctx.fillStyle = "red";
             }
 
@@ -244,7 +244,7 @@ class GamePlayer extends GameInterfaces {
                 this.shoots.push({
                     x: this.x - (Math.ceil(this.level / 2) * 2 + (Math.ceil(this.level / 2) - 1) * 3) / 2 + i * 5,
                     y: this.y,
-                    level: this.level % 2 + 1
+                    level: 2 - this.level % 2
                 });
             }
         }
