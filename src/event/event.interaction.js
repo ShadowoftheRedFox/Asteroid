@@ -22,12 +22,14 @@ MouseTrackerManager.data = {
     /**
      * @type {{x: number, y: number, date: number}[]}
      */
-    click: [{ x: -100, y: -100, date: 0 }]
+    click: [{ x: -100, y: -100, date: 0 }],
+    hold: false
 };
 
 MouseTrackerManager.init = function () {
     document.onmousedown = function (ev) { MouseTrackerManager.OnMouseClick(ev); };
     document.onmousemove = function (ev) { MouseTrackerManager.OnMouseMove(ev); };
+    document.onmouseup = function (ev) { MouseTrackerManager.OnMouseUnclick(ev); };
 };
 
 /**
@@ -39,6 +41,9 @@ MouseTrackerManager.OnMouseMove = function (event) {
     MouseTrackerManager.moving = true;
     MouseTrackerManager.update();
     MouseTrackerManager.stopedMoved({ x: event.clientX, y: event.clientY });
+
+    MouseTrackerManager.data.hold.x = event.clientX;
+    MouseTrackerManager.data.hold.y = event.clientY;
 };
 
 MouseTrackerManager.moving = false;
@@ -70,6 +75,27 @@ MouseTrackerManager.OnMouseClick = function (event) {
         MouseTrackerManager.data.click.shift();
     }
     MouseTrackerManager.update();
+
+    MouseTrackerManager.data.hold = true;
+};
+
+/**
+ * @param {MouseEvent} event 
+ */
+MouseTrackerManager.OnMouseUnclick = function (event) {
+    MouseTrackerManager.data.hold = false;
+};
+
+/**
+ * @param {number} x
+ * @param {number} y
+ * @param {number} w
+ * @param {number} h
+ * @returns {boolean}
+ */
+MouseTrackerManager.holdOver = function (x, y, w, h) {
+    if (this.checkOver(x, y, w, h, true) && this.data.hold === true) return true;
+    return false;
 };
 
 /**
@@ -84,8 +110,8 @@ MouseTrackerManager.checkOver = function (x, y, w, h, old = false) {
     const l = MouseTrackerManager.data.lastMove,
         o = MouseTrackerManager.data.old;
     if (l.x >= x && l.x <= x + w && l.y >= y && l.y <= y + h) return true;
-    else if (old == true && o.x >= x && o.x <= x + w && o.y >= y && o.y <= y + h) return true;
-    else return false;
+    if (old == true && o.x >= x && o.x <= x + w && o.y >= y && o.y <= y + h) return true;
+    return false;
 };
 
 MouseTrackerManager.trueCheckOver = function (x, y, w, h) {

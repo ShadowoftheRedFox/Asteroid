@@ -96,6 +96,33 @@ class GamePlayer extends GameInterfaces {
 
         // show life and score
         this.display(ctx);
+
+        if (scope.constants.isMobileDevice) {
+            ctx.fillStyle = "white";
+            ctx.globalAlpha = 0.5;
+
+            ctx.beginPath();
+            ctx.moveTo(Width - 60, Height - 60);
+            ctx.lineTo(Width - 10, Height - 35);
+            ctx.lineTo(Width - 60, Height - 10);
+            ctx.lineTo(Width - 60, Height - 60);
+            ctx.fill();
+            ctx.closePath();
+
+            ctx.beginPath();
+            ctx.moveTo(Width - 65, Height - 60);
+            ctx.lineTo(Width - 115, Height - 35);
+            ctx.lineTo(Width - 65, Height - 10);
+            ctx.lineTo(Width - 65, Height - 60);
+            ctx.fill();
+            ctx.closePath();
+
+            ctx.beginPath();
+            ctx.arc(60, Height - 60, 40, 0, 2 * Math.PI, false);
+            ctx.fill();
+
+            ctx.globalAlpha = 1;
+        }
     }
 
     /**
@@ -225,19 +252,25 @@ class GamePlayer extends GameInterfaces {
             elaps = Date.now() - this.elapsed;
         this.elapsed = Date.now();
 
-        if (KeyboardTrackerManager.pressed([" "]) && this.over) {
+        if ((KeyboardTrackerManager.pressed([" "]) ||
+            MouseTrackerManager.checkClick(0, 0, scope.w, scope.h)) &&
+            this.over) {
             this.restart(scope.w);
         }
 
-        if (KeyboardTrackerManager.pressed(k.right)) {
+        if (KeyboardTrackerManager.pressed(k.right) ||
+            MouseTrackerManager.holdOver(scope.w - 60, scope.h - 60, 50, 50)) {
             this.x += Math.floor(scope.w / 200);
             if (this.x >= scope.w - 10) this.x = scope.w - 10;
-        } else if (KeyboardTrackerManager.pressed(k.left)) {
+        } else if (KeyboardTrackerManager.pressed(k.left) ||
+            MouseTrackerManager.holdOver(scope.w - 115, scope.h - 60, 50, 50)) {
             this.x -= Math.floor(scope.w / 200);
             if (this.x <= 10) this.x = 10;
         }
 
-        if (KeyboardTrackerManager.pressed(k.shoot) && Date.now() - this.lastShoot >= 200) {
+        if ((KeyboardTrackerManager.pressed(k.shoot) ||
+            MouseTrackerManager.holdOver(0, scope.h - 120, 120, 120)) &&
+            Date.now() - this.lastShoot >= 200) {
             this.lastShoot = Date.now();
             // make each bullet independent
             for (let i = 0; i < Math.ceil(this.level / 2); i++) {

@@ -241,16 +241,17 @@ declare global {
             lastMove: {
                 x: number,
                 y: number
-            }
+            },
             lastMoveTrue: {
                 x: number,
                 y: number
-            }
+            },
             old: {
                 x: number,
                 y: number
-            }
-            click: { x: number, y: number, date: number }[]
+            },
+            click: { x: number, y: number, date: number }[],
+            hold: boolean
         }
         /**
          * Check whether or not the mouse is over the given rectangle. Every frame, reset to false coordinate and saves true ones.
@@ -283,6 +284,16 @@ declare global {
          * @returns {boolean} If there was a click or not.
          */
         checkClick(x: number, y: number, w: number, h: number, time?: number | 16.6): boolean
+
+        /**
+         * Check whether or not the mouse is holding over the given rectangle. 
+         * @param x
+         * @param y
+         * @param w
+         * @param h
+         * @returns {boolean} If it's holding over ot not.
+         */
+        holdOver(x: number, y: number, w: number, h: number): boolean
 
         updated: boolean
         waitTimeUpdate: number
