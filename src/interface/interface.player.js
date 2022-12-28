@@ -247,7 +247,7 @@ class GamePlayer extends GameInterfaces {
      * @param {GameScope} scope 
      */
     update(scope) {
-        if (scope.constants.isMobileDevice && Height > Width) {
+        if (scope.constants.isMobileDevice && scope.h > scope.w) {
             return;
         }
 
