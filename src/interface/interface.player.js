@@ -327,7 +327,7 @@ class GamePlayer extends GameInterfaces {
         }
 
         // life system
-        if (this.score % 5000 == 0 && this.score > this.lastLifeUP) {
+        if (this.score >= this.lastLifeUP + 5000) {
             this.lastLifeUP = this.score;
             this.life++;
         }
