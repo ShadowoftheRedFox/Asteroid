@@ -139,6 +139,7 @@ class GamePlayer extends GameInterfaces {
             ctx.fillText(`${MouseTrackerManager.data.lastMoveTrue.x}:${MouseTrackerManager.data.lastMoveTrue.y}`, Width / 2, Height / 2);
             ctx.fillText(`${Math.floor((MouseTrackerManager.data.lastMoveTrue.x / scope.w) * 100)}%:${Math.floor((MouseTrackerManager.data.lastMoveTrue.y / scope.h) * 100)}%`, Width / 2, Height / 2 + 22);
             ctx.fillText(MouseTrackerManager.data.hold, Width / 2, Height / 2 - 22);
+            ctx.fillText(`${!!onmousedown} ${!!onmouseup}`, Width / 2, Height / 2 - 44);
         }
     }
 
