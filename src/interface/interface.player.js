@@ -127,6 +127,17 @@ class GamePlayer extends GameInterfaces {
             ctx.fill();
 
             ctx.globalAlpha = 1;
+
+            ctx.fillStyle = "orange";
+            ctx.beginPath();
+            ctx.arc(MouseTrackerManager.data.lastMoveTrue.x, MouseTrackerManager.data.lastMoveTrue.y, 20, 0, 2 * Math.PI, false);
+            ctx.fill();
+
+            ctx.textBaseline = "middle";
+            ctx.textAlign = "center";
+            ctx.font = "20px Arial";
+            ctx.fillText(`${MouseTrackerManager.data.lastMoveTrue.x}:${MouseTrackerManager.data.lastMoveTrue.y}`, Width / 2, Height / 2);
+            ctx.fillText(`${Math.floor((MouseTrackerManager.data.lastMoveTrue.x / scope.w) * 100)}%:${Math.floor((MouseTrackerManager.data.lastMoveTrue.y / scope.h) * 100)}%`, Width / 2, Height / 2 + 22);
         }
     }
 

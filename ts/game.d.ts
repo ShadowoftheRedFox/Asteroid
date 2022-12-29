@@ -1,5 +1,10 @@
 export { }
 
+import "./core.d.ts"
+import "./data.d.ts"
+import "./declaration"
+import "./type.d.ts"
+
 declare global {
     type Star = {
         x: number,
