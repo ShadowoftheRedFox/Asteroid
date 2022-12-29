@@ -231,6 +231,11 @@ declare global {
 
     const KeyboardTrackerManager: {
         init(): void
+        /**
+         * Check if at least one of the key inside if the array is pressed.
+         * @param array An array of key to check.
+         */
+        pressed(array: any[]): boolean
         array: string[]
         map: { [name: string]: boolean }
     }

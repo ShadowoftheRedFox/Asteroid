@@ -12,8 +12,11 @@ class GameMapInterface extends GameInterfaces {
             activated: true
         }, scope);
 
+        /**@type {Star[]} */
         this.starsArray = [];
         this.densityAmount = Math.ceil(5120 * 2880 * 0.0001);
+        /**@type {Comet[]} */
+        this.comets = [];
     }
 
     /**
@@ -90,12 +93,15 @@ class GameMapInterface extends GameInterfaces {
     update(scope) {
         // since the player is moving, make the stars go down by 10% of his speed
         this.starsArray.forEach(star => {
-            star.y += Math.ceil(scope.state.entity.player.speed * 0.2);
-            // if the star get out of the screen, create a "new" star at the top of the screen
-            if (star.y >= 2880 + star.size / 2) {
-                star.x = Math.floor(Math.random() * 5120);
-                star.size = Math.floor(Math.random() * 15 + 5);
-                star.y = -star.size;
+            //only move stars on screen
+            if (star.x <= scope.w + star.size / 2 && star.y <= scope.h + star.size * 2) {
+                star.y += Math.ceil(scope.state.entity.player.speed * 0.2);
+                // if the star get out of the screen, create a "new" star at the top of the screen
+                if (star.y >= scope.h + star.size / 2) {
+                    star.x = Math.floor(Math.random() * scope.w);
+                    star.size = Math.floor(Math.random() * 15 + 5);
+                    star.y = -star.size;
+                }
             }
         });
     }

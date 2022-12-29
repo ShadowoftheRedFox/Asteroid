@@ -33,6 +33,10 @@ class GamePlayer extends GameInterfaces {
         this.lifeCooldown = 0;
         this.bestScore = 0;
         this.over = false;
+        /**@type {Particle[]} */
+        this.particles = [];
+        /**@type {Explosion[]} */
+        this.explosions = [];
     }
 
     /**
@@ -68,7 +72,9 @@ class GamePlayer extends GameInterfaces {
             ctx.fillText("Game Over", Width / 2, Height / 2);
             ctx.font = "40px Arial";
             this.needsUpdate = false;
-            if (scope.constants.isMobileDevice) return ctx.fillText("Start again by taping the screen.", Width / 2, Height / 2 + 80);
+            if (scope.constants.isMobileDevice) {
+                return ctx.fillText("Start again by taping the screen.", Width / 2, Height / 2 + 80);
+            }
             return ctx.fillText("Start again by pressing space.", Width / 2, Height / 2 + 80);
         }
 
@@ -89,7 +95,6 @@ class GamePlayer extends GameInterfaces {
         });
 
         // draw each asteroid
-        if (Math.random() * 100 <= 4 * this.speed / 2) this.createAsteroid(scope);
         this.asteroids.forEach(asteroid => {
             this.drawAsteroid(scope, asteroid);
         });
@@ -183,8 +188,10 @@ class GamePlayer extends GameInterfaces {
         const pointNumber = Math.floor(Math.random() * 10 + 10);
         const rotationAngle = Math.random() / 100 * 2 * Math.PI * Math.randomSign();
         const spawnCoos = Math.floor(scope.w * Math.random());
-        const angle1 = Math.sin(spawnCoos / Math.sqrt(scope.h * scope.h + spawnCoos * spawnCoos));
-        const angle2 = Math.sin((scope.w - spawnCoos) / Math.sqrt(scope.h * scope.h + (scope.w - spawnCoos) * (scope.w - spawnCoos)));
+        const angle1 = Math.sin(spawnCoos /
+            Math.sqrt(scope.h * scope.h + spawnCoos * spawnCoos));
+        const angle2 = Math.sin((scope.w - spawnCoos) /
+            Math.sqrt(scope.h * scope.h + (scope.w - spawnCoos) * (scope.w - spawnCoos)));
 
         const asteroid = {
             x: spawnCoos,
@@ -256,16 +263,21 @@ class GamePlayer extends GameInterfaces {
             return;
         }
 
+        // create asteroids at random time
+        if (Math.random() * 100 <= 4 * this.speed / 2) this.createAsteroid(scope);
+
         const k = GameConfig.keyboard,
             elaps = Date.now() - this.elapsed;
         this.elapsed = Date.now();
 
+        // restart on over
         if ((KeyboardTrackerManager.pressed([" "]) ||
             MouseTrackerManager.checkClick(0, 0, scope.w, scope.h)) &&
             this.over) {
             this.restart(scope.w);
         }
 
+        // move the space ship
         if (KeyboardTrackerManager.pressed(k.right) ||
             MouseTrackerManager.holdOver(scope.w - 60, scope.h - 60, 50, 50)) {
             this.x += Math.floor(scope.w / 200);
@@ -276,6 +288,7 @@ class GamePlayer extends GameInterfaces {
             if (this.x <= 10) this.x = 10;
         }
 
+        // shoot
         if ((KeyboardTrackerManager.pressed(k.shoot) ||
             MouseTrackerManager.holdOver(0, scope.h - 120, 120, 120)) &&
             Date.now() - this.lastShoot >= 200) {
@@ -290,6 +303,7 @@ class GamePlayer extends GameInterfaces {
             }
         }
 
+        // acceleration
         if (KeyboardTrackerManager.pressed(k.down)) {
             this.speed -= 0.2 / elaps;
             if (this.speed <= 1) this.speed = 1;
@@ -309,20 +323,33 @@ class GamePlayer extends GameInterfaces {
             }
 
             this.asteroids.forEach((asteroid, idx) => {
-                //TODO make it more accurate
-                // check if bullet is colliding with the asteroid
-                if (shoot.x < asteroid.x + asteroid.size &&
-                    shoot.x + 2 > asteroid.x - asteroid.size &&
-                    shoot.y < asteroid.y + asteroid.size &&
-                    shoot.y + 5 > asteroid.y - asteroid.size) {
-                    asteroid.life -= shoot.level;
-                    this.shoots.splice(id, 1);
-                    this.score += Math.floor(5 * this.speed / 2);
+                // check collision check if the asteroid is near
+                if (Math.sqrt(Math.pow(shoot.x + 1 - asteroid.x, 2) + Math.pow(shoot.y + 2.5 - asteroid.y, 2)) <= asteroid.size) {
+                    let collided = false;
+                    asteroid.points.forEach((point, id) => {
+                        //? maybe can be optimised
+                        // the three point will be: center of the asteroid, current point and next point
+                        let nextPoint = asteroid.points[id + 1];
+                        if (!nextPoint) nextPoint = asteroid.points[0];
+                        if (this.pointInTriangle(point.x + asteroid.x, point.y + asteroid.y, asteroid.x, asteroid.y, nextPoint.x + asteroid.x, nextPoint.y + asteroid.y, shoot.x + 1, shoot.y + 2.5)) {
+                            collided = true;
+                        }
+                    });
 
-                    if (asteroid.life <= 0) {
-                        this.asteroids.splice(idx, 1);
-                        this.score += Math.floor(10 * this.speed / 2);
-                        //todo animation 
+                    if (collided) {
+                        asteroid.life -= shoot.level;
+                        this.shoots.splice(id, 1);
+                        this.score += Math.floor(5 * this.speed / 2);
+
+                        if (asteroid.life <= 0) {
+                            this.asteroids.splice(idx, 1);
+                            this.score += Math.floor(10 * this.speed / 2);
+                            //todo animation 
+                            /*
+                            particles going from the center and fadding
+                            part of asteroids ?
+                            */
+                        }
                     }
                 }
             });
@@ -344,17 +371,29 @@ class GamePlayer extends GameInterfaces {
                 point.y = tempx * Math.sin(asteroid.rotation) + tempy * Math.cos(asteroid.rotation);
             });
 
-            //TODO make it more accurate
-            // check collision with player
-            if (this.x - 10 < asteroid.x + asteroid.size &&
-                this.x + 10 > asteroid.x - asteroid.size &&
-                this.y < asteroid.y + asteroid.size &&
-                this.y + 10 > asteroid.y - asteroid.size &&
-                this.life > 0 &&
-                Date.now() - this.lifeCooldown >= 1000) {
-                this.lifeCooldown = Date.now();
-                this.life--;
-                if (this.life === 0) this.over = true;
+            // check collision check if the asteroid is near
+            if (Math.sqrt(Math.pow(this.x - asteroid.x, 2) + Math.pow(this.y - asteroid.y, 2)) <= asteroid.size) {
+                let collided = false;
+                asteroid.points.forEach((point, id) => {
+                    //? maybe can be optimised
+                    // the three point will be: center of the asteroid, current point and next point
+                    let nextPoint = asteroid.points[id + 1];
+                    if (!nextPoint) nextPoint = asteroid.points[0];
+                    if (this.pointInTriangle(point.x + asteroid.x, point.y + asteroid.y, asteroid.x, asteroid.y, nextPoint.x + asteroid.x, nextPoint.y + asteroid.y, this.x, this.y) ||
+                        this.pointInTriangle(point.x + asteroid.x, point.y + asteroid.y, asteroid.x, asteroid.y, nextPoint.x + asteroid.x, nextPoint.y + asteroid.y, this.x - 10, this.y + 10) ||
+                        this.pointInTriangle(point.x + asteroid.x, point.y + asteroid.y, asteroid.x, asteroid.y, nextPoint.x + asteroid.x, nextPoint.y + asteroid.y, this.x + 10, this.y + 10)) {
+                        collided = true;
+                    }
+                });
+
+                if (collided && Date.now() - this.lifeCooldown >= 1000) {
+                    this.lifeCooldown = Date.now();
+                    this.life--;
+                    if (this.life === 0) {
+                        this.over = true;
+                        //todo animation 
+                    }
+                }
             }
         });
 
@@ -385,5 +424,24 @@ class GamePlayer extends GameInterfaces {
         this.lastShoot = Date.now();
         this.over = false;
         this.needsUpdate = true;
+    }
+
+    destroy(x, y, size, player = false) {
+        this.explosions.push({
+            x: x,
+            y: y,
+            color: player ? "red" : "white",
+            maxDiameter: player ? 40 : size,
+            currentDiameter: 0
+        });
+    }
+
+    pointInTriangle(x1, y1, x2, y2, x3, y3, x, y) {
+        var denominator = ((y2 - y3) * (x1 - x3) + (x3 - x2) * (y1 - y3));
+        var a = ((y2 - y3) * (x - x3) + (x3 - x2) * (y - y3)) / denominator;
+        var b = ((y3 - y1) * (x - x3) + (x1 - x3) * (y - y3)) / denominator;
+        var c = 1 - a - b;
+
+        return 0 <= a && a <= 1 && 0 <= b && b <= 1 && 0 <= c && c <= 1;
     }
 }
