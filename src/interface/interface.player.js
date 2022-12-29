@@ -327,12 +327,14 @@ class GamePlayer extends GameInterfaces {
                 if (Math.sqrt(Math.pow(shoot.x + 1 - asteroid.x, 2) + Math.pow(shoot.y + 2.5 - asteroid.y, 2)) <= asteroid.size) {
                     let collided = false;
                     asteroid.points.forEach((point, id) => {
-                        //? maybe can be optimised
-                        // the three point will be: center of the asteroid, current point and next point
-                        let nextPoint = asteroid.points[id + 1];
-                        if (!nextPoint) nextPoint = asteroid.points[0];
-                        if (this.pointInTriangle(point.x + asteroid.x, point.y + asteroid.y, asteroid.x, asteroid.y, nextPoint.x + asteroid.x, nextPoint.y + asteroid.y, shoot.x + 1, shoot.y + 2.5)) {
-                            collided = true;
+                        if (!collided) {
+                            //? maybe can be optimised
+                            // the three point will be: center of the asteroid, current point and next point
+                            let nextPoint = asteroid.points[id + 1];
+                            if (!nextPoint) nextPoint = asteroid.points[0];
+                            if (this.pointInTriangle(point.x + asteroid.x, point.y + asteroid.y, asteroid.x, asteroid.y, nextPoint.x + asteroid.x, nextPoint.y + asteroid.y, shoot.x + 1, shoot.y + 2.5)) {
+                                collided = true;
+                            }
                         }
                     });
 
@@ -375,14 +377,16 @@ class GamePlayer extends GameInterfaces {
             if (Math.sqrt(Math.pow(this.x - asteroid.x, 2) + Math.pow(this.y - asteroid.y, 2)) <= asteroid.size) {
                 let collided = false;
                 asteroid.points.forEach((point, id) => {
-                    //? maybe can be optimised
-                    // the three point will be: center of the asteroid, current point and next point
-                    let nextPoint = asteroid.points[id + 1];
-                    if (!nextPoint) nextPoint = asteroid.points[0];
-                    if (this.pointInTriangle(point.x + asteroid.x, point.y + asteroid.y, asteroid.x, asteroid.y, nextPoint.x + asteroid.x, nextPoint.y + asteroid.y, this.x, this.y) ||
-                        this.pointInTriangle(point.x + asteroid.x, point.y + asteroid.y, asteroid.x, asteroid.y, nextPoint.x + asteroid.x, nextPoint.y + asteroid.y, this.x - 10, this.y + 10) ||
-                        this.pointInTriangle(point.x + asteroid.x, point.y + asteroid.y, asteroid.x, asteroid.y, nextPoint.x + asteroid.x, nextPoint.y + asteroid.y, this.x + 10, this.y + 10)) {
-                        collided = true;
+                    if (!collided) {
+                        //? maybe can be optimised
+                        // the three point will be: center of the asteroid, current point and next point
+                        let nextPoint = asteroid.points[id + 1];
+                        if (!nextPoint) nextPoint = asteroid.points[0];
+                        if (this.pointInTriangle(point.x + asteroid.x, point.y + asteroid.y, asteroid.x, asteroid.y, nextPoint.x + asteroid.x, nextPoint.y + asteroid.y, this.x, this.y) ||
+                            this.pointInTriangle(point.x + asteroid.x, point.y + asteroid.y, asteroid.x, asteroid.y, nextPoint.x + asteroid.x, nextPoint.y + asteroid.y, this.x - 10, this.y + 10) ||
+                            this.pointInTriangle(point.x + asteroid.x, point.y + asteroid.y, asteroid.x, asteroid.y, nextPoint.x + asteroid.x, nextPoint.y + asteroid.y, this.x + 10, this.y + 10)) {
+                            collided = true;
+                        }
                     }
                 });
 
