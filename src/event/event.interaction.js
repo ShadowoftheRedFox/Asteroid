@@ -58,7 +58,7 @@ MouseTrackerManager.OnTouchStart = function (event) {
  */
 MouseTrackerManager.OnTouchEnd = function (event) {
     for (let i = 0; i < event.changedTouches.length; i++) {
-        delete MouseTrackerManager.lastMove[i.toString()];
+        delete MouseTrackerManager.lastMove[event.changedTouches.item(i).identifier.toString()];
     }
     if (Object.keys(MouseTrackerManager.lastMove).length === 0) MouseTrackerManager.holding = false;
 };
@@ -70,11 +70,11 @@ MouseTrackerManager.OnTouchMove = function (event) {
     MouseTrackerManager.moving = true;
 
     for (let i = 0; i < event.changedTouches.length; i++) {
-        MouseTrackerManager.lastMove[event.changedTouches.item(i).identifier].x = event.changedTouches.item(i).clientX;
-        MouseTrackerManager.lastMove[event.changedTouches.item(i).identifier].y = event.changedTouches.item(i).clientY;
-        MouseTrackerManager.lastMove[event.changedTouches.item(i).identifier].date = Date.now();
+        MouseTrackerManager.lastMove[event.changedTouches.item(i).identifier.toString()].x = event.changedTouches.item(i).clientX;
+        MouseTrackerManager.lastMove[event.changedTouches.item(i).identifier.toString()].y = event.changedTouches.item(i).clientY;
+        MouseTrackerManager.lastMove[event.changedTouches.item(i).identifier.toString()].date = Date.now();
         // there is no hover, so kinda useless, just stays here just in case
-        // MouseTrackerManager.stopedMoved(MouseTrackerManager.lastMove[i.toString()]);
+        // MouseTrackerManager.stopedMoved(MouseTrackerManager.lastMove[event.changedTouches.item(i).identifier.toString()]);
     }
 };
 
