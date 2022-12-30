@@ -73,6 +73,7 @@ MouseTrackerManager.OnTouchMove = function (event) {
         MouseTrackerManager.lastMove[event.changedTouches.item(i).identifier].x = event.changedTouches.item(i).clientX;
         MouseTrackerManager.lastMove[event.changedTouches.item(i).identifier].y = event.changedTouches.item(i).clientY;
         MouseTrackerManager.lastMove[event.changedTouches.item(i).identifier].date = Date.now();
+        // there is no hover, so kinda useless, just stays here just in case
         // MouseTrackerManager.stopedMoved(MouseTrackerManager.lastMove[i.toString()]);
     }
 };
