@@ -60,7 +60,7 @@ MouseTrackerManager.OnTouchEnd = function (event) {
     for (let i = 0; i < event.changedTouches.length; i++) {
         delete MouseTrackerManager.lastMove[i.toString()];
     }
-    if (Object.entries(MouseTrackerManager.lastMove).length === 0) MouseTrackerManager.holding = false;
+    if (Object.keys(MouseTrackerManager.lastMove).length === 0) MouseTrackerManager.holding = false;
 };
 
 /**
