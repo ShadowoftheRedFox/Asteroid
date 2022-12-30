@@ -242,24 +242,27 @@ declare global {
 
     const MouseTrackerManager: {
         init(): void
-        data: {
-            lastMove: {
-                x: number,
-                y: number
-            },
-            lastMoveTrue: {
-                x: number,
-                y: number
-            },
-            old: {
-                x: number,
-                y: number
-            },
-            click: { x: number, y: number, date: number }[],
-            hold: boolean
-        }
+        /**
+         * Whether or not the pointer is being pushed down.
+         */
+        holding: boolean;
+        /**
+         * Whether or not the cursor is moving.
+         */
+        moving: boolean;
+
+        /**
+         * The last move of each pointer.
+         */
+        lastMove: { x: number, y: number, date: number, id: number }[];
+        /**
+         * The last couple of move of each pointer.
+         */
+        oldMove: { x: number, y: number, date: number, id: number }[];
+
         /**
          * Check whether or not the mouse is over the given rectangle. Every frame, reset to false coordinate and saves true ones.
+         * To get the current check over without the frame reset, switch old to true.
          * @param x
          * @param y
          * @param w
@@ -270,38 +273,16 @@ declare global {
         checkOver(x: number, y: number, w: number, h: number, old?: boolean): boolean
 
         /**
-         * Check whether or not the mouse is over the given rectangle. Always gives the current position.
-         * @param x
-         * @param y
-         * @param w
-         * @param h
-         * @returns {boolean} If it's over ot not.
-         */
-        trueCheckOver(x: number, y: number, w: number, h: number): boolean
-
-        /**
-         * Check whether or not there was a click in the given rectangle in the given past time.
-         * @param x
-         * @param y
-         * @param w
-         * @param h
-         * @param time How long should we look for a click, in ms. Default is 1000 / GameConfig.targetFps, if it's 60fps, time is 16.6ms.
-         * @returns {boolean} If there was a click or not.
-         */
-        checkClick(x: number, y: number, w: number, h: number, time?: number | 16.6): boolean
-
-        /**
-         * Check whether or not the mouse is holding over the given rectangle. 
+         * Check whether or not the mouse is clicking over the given rectangle. 
          * @param x
          * @param y
          * @param w
          * @param h
          * @returns {boolean} If it's holding over ot not.
          */
-        holdOver(x: number, y: number, w: number, h: number): boolean
+        clickOver(x: number, y: number, w: number, h: number): boolean
 
-        updated: boolean
-        waitTimeUpdate: number
+        getCoos(): { x: number, y: number, date: number, id: number }
     }
 
     /**

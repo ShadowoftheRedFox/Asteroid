@@ -81,7 +81,7 @@ class GamePlayer extends GameInterfaces {
         // level one space ship (change style for each level up?)
         ctx.fillStyle = "white";
         if (Date.now() - this.lifeCooldown <= 1000) ctx.fillStyle = "red";
-        this.player(ctx);
+        this.draw_player(ctx);
 
         // draw a little tick for each bullet
         this.shoots.forEach(shoot => {
@@ -100,9 +100,9 @@ class GamePlayer extends GameInterfaces {
         });
 
         // show life and score
-        this.display(ctx);
+        this.display_score(ctx);
 
-        if (scope.constants.isMobileDevice) {
+        if (scope.constants.isMobileDevice === true) {
             ctx.fillStyle = "white";
             ctx.globalAlpha = 0.5;
 
@@ -127,26 +127,13 @@ class GamePlayer extends GameInterfaces {
             ctx.fill();
 
             ctx.globalAlpha = 1;
-
-            ctx.fillStyle = "orange";
-            ctx.beginPath();
-            ctx.arc(MouseTrackerManager.data.lastMoveTrue.x, MouseTrackerManager.data.lastMoveTrue.y, 20, 0, 2 * Math.PI, false);
-            ctx.fill();
-
-            ctx.textBaseline = "middle";
-            ctx.textAlign = "center";
-            ctx.font = "20px Arial";
-            ctx.fillText(`${MouseTrackerManager.data.lastMoveTrue.x}:${MouseTrackerManager.data.lastMoveTrue.y}`, Width / 2, Height / 2);
-            ctx.fillText(`${Math.floor((MouseTrackerManager.data.lastMoveTrue.x / scope.w) * 100)}%:${Math.floor((MouseTrackerManager.data.lastMoveTrue.y / scope.h) * 100)}%`, Width / 2, Height / 2 + 22);
-            ctx.fillText(MouseTrackerManager.data.hold, Width / 2, Height / 2 - 22);
-            ctx.fillText(`${!!document.onmousedown} ${!!document.onmouseup}`, Width / 2, Height / 2 - 44);
         }
     }
 
     /**
      * @param {CanvasRenderingContext2D} ctx 
      */
-    display(ctx) {
+    display_score(ctx) {
         ctx.fillStyle = "white";
         ctx.globalAlpha = 0.5;
         ctx.fillRect(10, 10, 200, 60);
@@ -154,9 +141,9 @@ class GamePlayer extends GameInterfaces {
 
         ctx.font = "20px Arial";
         ctx.fillStyle = "blue";
-        this.player(ctx, 22, 14);
+        this.draw_player(ctx, 22, 14);
         ctx.textBaseline = "middle";
-        ctx.textAlign = "center";
+        ctx.textAlign = "left";
         ctx.fillText(`x${this.life}`, 45, 22);
 
         ctx.textBaseline = "hanging";
@@ -165,7 +152,7 @@ class GamePlayer extends GameInterfaces {
         ctx.fillText(`Best Score: ${this.bestScore}`, 12, 50);
     }
 
-    player(ctx, x = this.x, y = this.y) {
+    draw_player(ctx, x = this.x, y = this.y) {
         ctx.beginPath();
         ctx.moveTo(Math.floor(x), Math.floor(y));
         ctx.lineTo(Math.floor(x - 10), Math.floor(y + 10));
@@ -285,25 +272,25 @@ class GamePlayer extends GameInterfaces {
 
         // restart on over
         if ((KeyboardTrackerManager.pressed([" "]) ||
-            MouseTrackerManager.checkClick(0, 0, scope.w, scope.h)) &&
+            MouseTrackerManager.clickOver(0, 0, scope.w, scope.h)) &&
             this.over) {
             this.restart(scope.w);
         }
 
         // move the space ship
         if (KeyboardTrackerManager.pressed(k.right) ||
-            MouseTrackerManager.holdOver(scope.w - 60, scope.h - 60, 50, 50)) {
+            MouseTrackerManager.clickOver(scope.w - 60, scope.h - 60, 50, 50)) {
             this.x += Math.floor(scope.w / 200);
             if (this.x >= scope.w - 10) this.x = scope.w - 10;
         } else if (KeyboardTrackerManager.pressed(k.left) ||
-            MouseTrackerManager.holdOver(scope.w - 115, scope.h - 60, 50, 50)) {
+            MouseTrackerManager.clickOver(scope.w - 115, scope.h - 60, 50, 50)) {
             this.x -= Math.floor(scope.w / 200);
             if (this.x <= 10) this.x = 10;
         }
 
         // shoot
         if ((KeyboardTrackerManager.pressed(k.shoot) ||
-            MouseTrackerManager.holdOver(0, scope.h - 120, 120, 120)) &&
+            MouseTrackerManager.clickOver(0, scope.h - 120, 120, 120)) &&
             Date.now() - this.lastShoot >= 200) {
             this.lastShoot = Date.now();
             // make each bullet independent
@@ -443,12 +430,12 @@ class GamePlayer extends GameInterfaces {
         this.needsUpdate = true;
     }
 
-    destroy(x, y, size, player = false) {
+    destroy(x, y, size, draw_player = false) {
         this.explosions.push({
             x: x,
             y: y,
-            color: player ? "red" : "white",
-            maxDiameter: player ? 40 : size,
+            color: draw_player ? "red" : "white",
+            maxDiameter: draw_player ? 40 : size,
             currentDiameter: 0
         });
     }

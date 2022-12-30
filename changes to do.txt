@@ -1,0 +1,11 @@
+! event.interaction must be updated, and everything using it
+* there is a StaticClassError left there
+
+import all ts file in a game.d.ts so everyhting is available just by opening this file
+
+* remove the size limitation on the main.css file
+
+change all document.onkeydown or things like event listeners and replace them all by window.addEventListeners()
+also add a check that removes the listeners is the interface has been desactivated
+
+add the clamp method on the number module

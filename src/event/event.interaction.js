@@ -1,62 +1,107 @@
 /// <reference path="../../ts/type.d.ts"/>
 function MouseTrackerManager() {
-    throw new StaticClassError("This is a static class.");
+    throw new Error("This is a static class.");
 }
 
-MouseTrackerManager.data = {
-    lastMove: {
-        // init false coordinate to prevent bug
-        x: -100,
-        y: -100
-    },
-    lastMoveTrue: {
-        // init false coordinate to prevent bug
-        x: -100,
-        y: -100
-    },
-    old: {
-        // init false coordinate to prevent bug
-        x: -100,
-        y: -100
-    },
-    /**
-     * @type {{x: number, y: number, date: number}[]}
-     */
-    click: [{ x: -100, y: -100, date: 0 }],
-    hold: false
-};
+MouseTrackerManager.holding = false;
+MouseTrackerManager.moving = false;
+MouseTrackerManager.lastMove = {};
+MouseTrackerManager.oldMove = {};
 
 MouseTrackerManager.init = function () {
-    document.onmousedown = function (ev) { MouseTrackerManager.OnMouseClick(ev); };
-    document.onmousemove = function (ev) { MouseTrackerManager.OnMouseMove(ev); };
-    document.onmouseup = function (ev) { MouseTrackerManager.OnMouseUnclick(ev); };
+    // since events are different between mobile and computer, we need different handlers
+    if (Utils.isMobileDevice() === true) {
+        window.addEventListener("touchstart", MouseTrackerManager.OnTouchStart);
+        window.addEventListener("touchmove", MouseTrackerManager.OnTouchMove);
+        window.addEventListener("touchend", MouseTrackerManager.OnTouchEnd);
+    } else {
+        // init the cursor data
+        MouseTrackerManager.lastMove = {
+            0: {
+                x: -100,
+                y: -100,
+                date: 0,
+                id: 0
+            }
+        };
+        MouseTrackerManager.oldMove = {
+            0: {
+                x: -100,
+                y: -100,
+                date: 0,
+                id: 0
+            }
+        };
+        window.addEventListener("mousedown", MouseTrackerManager.OnMouseClick);
+        window.addEventListener("mousemove", MouseTrackerManager.OnMouseMove);
+        window.addEventListener("mouseup", MouseTrackerManager.OnMouseUnclick);
+    }
+};
+
+/**
+ * @param {TouchEvent} event 
+ */
+MouseTrackerManager.OnTouchStart = function (event) {
+    MouseTrackerManager.holding = true;
+    for (let i = 0; i < event.changedTouches.length; i++) {
+        MouseTrackerManager.lastMove[event.changedTouches.item(i).identifier.toString()] = {
+            x: event.changedTouches.item(i).clientX,
+            y: event.changedTouches.item(i).clientY,
+            date: Date.now(),
+            id: event.changedTouches.item(i).identifier
+        };
+    }
+};
+
+/**
+ * @param {TouchEvent} event 
+ */
+MouseTrackerManager.OnTouchEnd = function (event) {
+    for (let i = 0; i < event.changedTouches.length; i++) {
+        delete MouseTrackerManager.lastMove[i.toString()];
+    }
+    if (Object.entries(MouseTrackerManager.lastMove).length === 0) MouseTrackerManager.holding = false;
+};
+
+/**
+ * @param {TouchEvent} event 
+ */
+MouseTrackerManager.OnTouchMove = function (event) {
+    MouseTrackerManager.moving = true;
+
+    for (let i = 0; i < event.changedTouches.length; i++) {
+        MouseTrackerManager.lastMove[event.changedTouches.item(i).identifier].x = event.changedTouches.item(i).clientX;
+        MouseTrackerManager.lastMove[event.changedTouches.item(i).identifier].y = event.changedTouches.item(i).clientY;
+        MouseTrackerManager.lastMove[event.changedTouches.item(i).identifier].date = Date.now();
+        // MouseTrackerManager.stopedMoved(MouseTrackerManager.lastMove[i.toString()]);
+    }
 };
 
 /**
  * @param {MouseEvent} event 
  */
 MouseTrackerManager.OnMouseMove = function (event) {
-    MouseTrackerManager.data.lastMove = { x: event.clientX, y: event.clientY };
-    MouseTrackerManager.data.lastMoveTrue = { x: event.clientX, y: event.clientY };
     MouseTrackerManager.moving = true;
-    MouseTrackerManager.update();
-    MouseTrackerManager.stopedMoved({ x: event.clientX, y: event.clientY });
-
-    MouseTrackerManager.data.hold.x = event.clientX;
-    MouseTrackerManager.data.hold.y = event.clientY;
+    MouseTrackerManager.lastMove["0"] = { x: event.clientX, y: event.clientY, date: Date.now(), id: 0 };
+    MouseTrackerManager.stopedMoved({ x: event.clientX, y: event.clientY, date: Date.now(), id: 0 });
 };
 
-MouseTrackerManager.moving = false;
 MouseTrackerManager.stopedMoved = function (old) {
     // to "vanish" the cursor if it stopped moving at the next frame
     // so that you can freely use the keyboard even if the cursor is hover a button
-    if (MouseTrackerManager.moving) {
+    if (MouseTrackerManager.moving === true) {
         setTimeout(() => {
-            if (MouseTrackerManager.data.lastMove.x == old.x && MouseTrackerManager.data.lastMove.y == old.y) {
-                MouseTrackerManager.data.old = { x: old.x, y: old.y };
-                MouseTrackerManager.data.lastMove = { x: -10, y: -10 };
+            if (MouseTrackerManager.lastMove[old.id].x === old.x && MouseTrackerManager.lastMove[old.id].y === old.y) {
+                if (Utils.isMobileDevice === true) {
+                    MouseTrackerManager.oldMove[old.id] = { x: old.x, y: old.y, date: old.date, id: old.id };
+                }
+                // we don't need to worry that it will be stuck in the object, if it's a touch, it will get deleted
+                // only the cursor won't, and that's what we want
+                if (MouseTrackerManager.lastMove[old.id]) {
+                    MouseTrackerManager.lastMove[old.id] = { x: -10, y: -10, date: Date.now(), id: old.id };
+                }
             }
-        }, 1000 / GameConfig.targetFps);
+        }, 1000 / window.game.GameLoop.fps);
         MouseTrackerManager.moving = false;
     }
 };
@@ -65,25 +110,14 @@ MouseTrackerManager.stopedMoved = function (old) {
  * @param {MouseEvent} event 
  */
 MouseTrackerManager.OnMouseClick = function (event) {
-    MouseTrackerManager.data.click.push({
-        x: event.clientX,
-        y: event.clientY,
-        date: Date.now()
-    });
-    // remove too old click
-    if (MouseTrackerManager.data.click.length > 20) {
-        MouseTrackerManager.data.click.shift();
-    }
-    MouseTrackerManager.update();
-
-    MouseTrackerManager.data.hold = true;
+    MouseTrackerManager.holding = true;
 };
 
 /**
  * @param {MouseEvent} event 
  */
 MouseTrackerManager.OnMouseUnclick = function (event) {
-    MouseTrackerManager.data.hold = false;
+    MouseTrackerManager.holding = false;
 };
 
 /**
@@ -93,8 +127,8 @@ MouseTrackerManager.OnMouseUnclick = function (event) {
  * @param {number} h
  * @returns {boolean}
  */
-MouseTrackerManager.holdOver = function (x, y, w, h) {
-    if (this.checkOver(x, y, w, h, true) && this.data.hold === true) return true;
+MouseTrackerManager.clickOver = function (x, y, w, h) {
+    if (MouseTrackerManager.checkOver(x, y, w, h, true) && MouseTrackerManager.holding === true) return true;
     return false;
 };
 
@@ -107,50 +141,31 @@ MouseTrackerManager.holdOver = function (x, y, w, h) {
  * @returns {boolean}
  */
 MouseTrackerManager.checkOver = function (x, y, w, h, old = false) {
-    const l = MouseTrackerManager.data.lastMove,
-        o = MouseTrackerManager.data.old;
-    if (l.x >= x && l.x <= x + w && l.y >= y && l.y <= y + h) return true;
-    if (old == true && o.x >= x && o.x <= x + w && o.y >= y && o.y <= y + h) return true;
-    return false;
-};
-
-MouseTrackerManager.trueCheckOver = function (x, y, w, h) {
-    const l = MouseTrackerManager.data.lastMoveTrue;
-    if (l.x >= x && l.x <= x + w && l.y >= y && l.y <= y + h) return true;
-    return false;
-};
-
-/**
- * @param {number} x
- * @param {number} y
- * @param {number} w
- * @param {number} h
- * @param {number | 16.6} time
- * @returns {boolean}
- */
-MouseTrackerManager.checkClick = function (x, y, w, h, time) {
-    if (MouseTrackerManager.data.click.length === 0) return false;
-    let c = MouseTrackerManager.data.click[MouseTrackerManager.data.click.length - 1];
-
-    //check if click is new enough, under 100 ms [default]
-    if (!time) time = 1000 / GameConfig.targetFps;
-    if (Date.now() - c.date <= time) {
-        if (c.x >= x && c.x <= x + w && c.y >= y && c.y <= y + h) {
+    if (Utils.isMobileDevice() === false) {
+        const l = MouseTrackerManager.lastMove["0"] || { x: -100, y: -100 },
+            o = MouseTrackerManager.oldMove["0"] || { x: -100, y: -100 };
+        if (l.x >= x && l.x <= x + w && l.y >= y && l.y <= y + h) {
             return true;
-        } else {
-            return false;
         }
+        if (old === true && o.x >= x && o.x <= x + w && o.y >= y && o.y <= y + h) {
+            return true;
+        }
+        return false;
+    } else {
+        let over = false;
+        Object.keys(MouseTrackerManager.lastMove).forEach(e => {
+            const t = MouseTrackerManager.lastMove[e];
+            if (t.x >= x && t.x <= x + w && t.y >= y && t.y <= y + h) {
+                over = true;
+            }
+        });
+        return over;
     }
 };
 
-MouseTrackerManager.updated = false;
-MouseTrackerManager.waitTimeUpdate = 1000 / GameConfig.targetFps;
-
-MouseTrackerManager.update = function () {
-    MouseTrackerManager.updated = true;
-    setTimeout(() => {
-        MouseTrackerManager.updated = false;
-    }, MouseTrackerManager.waitTimeUpdate);
+MouseTrackerManager.getCoos = function () {
+    // TODO get all entries and put all cursor into an array, and return the array
+    return MouseTrackerManager.lastMove[MouseTrackerManager.lastMove.length - 1];
 };
 
 function KeyboardTrackerManager() {
@@ -161,9 +176,9 @@ function KeyboardTrackerManager() {
  * Hold which keys are pressed and which are not.
  * @example
  * KeyboardTrackerManager.map => {
- *  "a":true,
- *  "b":false,
- *  " ":false
+ *  "a": true,
+ *  "b": false,
+ *  " ": false
  * }
  */
 KeyboardTrackerManager.map = {};
@@ -175,8 +190,8 @@ KeyboardTrackerManager.map = {};
 KeyboardTrackerManager.array = [];
 
 KeyboardTrackerManager.init = function () {
-    onkeydown = document.onkeydown = function (ev) { KeyboardTrackerManager.onkeydown(ev); };
-    onkeyup = document.onkeyup = function (ev) { KeyboardTrackerManager.onkeyup(ev); };
+    window.addEventListener("keydown", KeyboardTrackerManager.onkeydown);
+    window.addEventListener("keyup", KeyboardTrackerManager.onkeyup);
 };
 
 /**
